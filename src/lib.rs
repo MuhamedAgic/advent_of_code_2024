@@ -1,7 +1,9 @@
 
 pub mod utils {
+    use std::fmt::Debug;
     use std::fs;
     use std::path::Path;
+    use std::str::FromStr;
 
     pub fn read_input(day: u8) -> String {
         let input_path = format!("input/day{:02}.txt", day);
@@ -14,12 +16,14 @@ pub mod utils {
         input
     }
 
-    pub fn collect_numbers_from(line: &str, separator: char) -> Vec<f64> { // todo voor verschillende typen getallen...
+    // collect numbers works with any numeric type that implements FromStr
+    pub fn collect_numbers<T>(line: &str, separator: char) -> Vec<T>
+    where T: FromStr, <T as FromStr>::Err: Debug {
         let numbers = line.split(separator)
             .map(str::trim)
-            .map(|x| x.parse::<f64>().unwrap()).collect();
+            .map(|x| x.parse::<T>().unwrap())
+            .collect::<Vec<T>>();
         numbers
     }
-
 
 }
