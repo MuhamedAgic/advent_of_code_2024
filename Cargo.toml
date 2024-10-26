@@ -12,3 +12,11 @@ itertools = "0.13.0"
 [[bin]]
 name = "day01"
 path = "src/bin/day01.rs"
+
+[[bin]]
+name = "day24_2023"
+path = "src/bin/day24_2023.rs"
+
+[[bin]]
+name = "day2_2021"
+path = "src/bin/day2_2021.rs"
