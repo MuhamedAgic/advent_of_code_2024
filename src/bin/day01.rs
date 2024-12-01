@@ -7,7 +7,7 @@ fn part_one(input: &str) -> i32 {
     let mut second_location_ids = Vec::new();
 
     for line in input.lines() {
-        let (mut first, mut second): (&str, &str) = line.split("   ").collect_tuple().unwrap();
+        let (first, second): (&str, &str) = line.split("   ").collect_tuple().unwrap();
         let first = first.parse::<i32>().unwrap();
         let second = second.parse::<i32>().unwrap();
         first_location_ids.push(first);
@@ -19,7 +19,7 @@ fn part_one(input: &str) -> i32 {
 
     let mut total_distance = 0;
     for (first, second) in first_location_ids.iter().zip(second_location_ids.iter()) {
-        let mut distance = second - first;
+        let distance = second - first;
         total_distance += distance.abs();
     }
 
@@ -42,18 +42,10 @@ fn part_one_v2(input: &str) -> i32 {
     first_location_ids.sort_unstable();
     second_location_ids.sort_unstable();
 
-    let mut total_distance = 0;
-    for (first, second) in first_location_ids.iter().zip(second_location_ids.iter()) {
-        let mut distance = second - first;
-        total_distance += distance.abs();
-    }
-    
     first_location_ids
         .iter()
         .zip(second_location_ids.iter())
-        .fold(0, |total_distance, (a, b)| total_distance + (a - b).abs());
-
-    total_distance
+        .fold(0, |total_distance, (a, b)| total_distance + (a - b).abs())
 }
 
 fn part_two(input: &str) -> i32 {
@@ -61,7 +53,7 @@ fn part_two(input: &str) -> i32 {
     let mut second_location_ids = Vec::new();
 
     for line in input.lines() {
-        let (mut first, mut second): (&str, &str) = line.split("   ").collect_tuple().unwrap();
+        let (first, second): (&str, &str) = line.split("   ").collect_tuple().unwrap();
         let first = first.parse::<i32>().unwrap();
         let second = second.parse::<i32>().unwrap();
         first_location_ids.push(first);
@@ -105,7 +97,6 @@ fn part_two_v2(input: &str) -> i32 {
         }
         similarity_score += first * appearances;
     }
-
     similarity_score
 }
 
