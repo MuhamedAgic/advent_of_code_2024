@@ -1,3 +1,4 @@
+use std::time::SystemTime;
 use itertools::Itertools;
 use advent_of_code_2024::utils;
 
@@ -76,31 +77,17 @@ fn calculate_hailstones_intersection_point(hail_stone_a: &HailStone, hail_stone_
     let (a_hail_stone_a, b_hail_stone_a) = derive_line_equation(hail_stone_a);
     let (a_hail_stone_b, b_hail_stone_b) = derive_line_equation(hail_stone_b);
 
-    println!("A: y = {}x + {}", a_hail_stone_a, b_hail_stone_a);
-    println!("B: y = {}x + {}", a_hail_stone_b, b_hail_stone_b);
+    // println!("A: y = {}x + {}", a_hail_stone_a, b_hail_stone_a);
+    // println!("B: y = {}x + {}", a_hail_stone_b, b_hail_stone_b);
 
     if a_hail_stone_a == a_hail_stone_b {
         return None // parallel
     }
 
-    let mut lhs_equation = 0.0; // 2x = ...
-    if a_hail_stone_b.is_sign_negative() {
-        lhs_equation = a_hail_stone_a + a_hail_stone_b;
-    }
-    else {
-        lhs_equation = a_hail_stone_a - a_hail_stone_b;
-    }
-
-    let mut rhs_equation = 0.0; // e.g. ... = 5
-    if b_hail_stone_a.is_sign_negative() {
-        rhs_equation = b_hail_stone_b + b_hail_stone_a;
-    }
-    else {
-        rhs_equation = b_hail_stone_b - b_hail_stone_a;
-    }
-
-    // e.g. 2x = 5 -> x = 5/2 = 2.5
-    let intersection_point_2d_x = rhs_equation / lhs_equation;
+    // a1x + b1 = a2x + b2
+    // a1x + b1 - b2 = a2x
+    // b1 - b2 = a2x - a1x
+    let intersection_point_2d_x = (b_hail_stone_a - b_hail_stone_b) / (a_hail_stone_b - a_hail_stone_a);
     let intersection_point_2d_y = (a_hail_stone_a * intersection_point_2d_x) + b_hail_stone_a; // y = ax + b
 
     let intersection_point_2d = Position::new(intersection_point_2d_x, intersection_point_2d_y, 0.0);
@@ -117,22 +104,22 @@ fn hail_stone_has_not_reached_path_intersection(hail_stone: &HailStone,
     let from_right_to_left = hail_stone.velocity.x.is_sign_negative();
     let from_roof_to_floor = hail_stone.velocity.y.is_sign_negative();
     if from_right_to_left {
-        println!("Going from right to left");
+        // println!("Going from right to left");
         if from_roof_to_floor {
-            println!("Going from roof to floor");
+            // println!("Going from roof to floor");
             if hail_stone.position.y > intersection_point.y
                 && hail_stone.position.x < intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y < intersection_point.y
                 && hail_stone.position.x > intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y < intersection_point.y
                 && hail_stone.position.x < intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y > intersection_point.y
@@ -141,25 +128,25 @@ fn hail_stone_has_not_reached_path_intersection(hail_stone: &HailStone,
                 is_valid = true;
             }
             else {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
         }
         else {
-            println!("Going from floor to roof");
+            // println!("Going from floor to roof");
             if hail_stone.position.y < intersection_point.y
                 && hail_stone.position.x < intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y > intersection_point.y
                 && hail_stone.position.x > intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y > intersection_point.y
                 && hail_stone.position.x < intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y < intersection_point.y
@@ -168,28 +155,28 @@ fn hail_stone_has_not_reached_path_intersection(hail_stone: &HailStone,
                 is_valid = true;
             }
             else {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
         }
     }
     else {
-        println!("Going from left to right");
+        // println!("Going from left to right");
         if from_roof_to_floor {
-            println!("Going from roof to floor");
+            // println!("Going from roof to floor");
             if hail_stone.position.y < intersection_point.y
                 && hail_stone.position.x < intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y > intersection_point.y
                 && hail_stone.position.x > intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y < intersection_point.y
                 && hail_stone.position.x > intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y > intersection_point.y
@@ -198,25 +185,25 @@ fn hail_stone_has_not_reached_path_intersection(hail_stone: &HailStone,
                 is_valid = true;
             }
             else {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
         }
         else {
-            println!("Going from floor to roof");
+            // println!("Going from floor to roof");
             if hail_stone.position.y > intersection_point.y
                 && hail_stone.position.x < intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y > intersection_point.y
                 && hail_stone.position.x > intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y < intersection_point.y
                 && hail_stone.position.x > intersection_point.x {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
             else if hail_stone.position.y < intersection_point.y
@@ -225,7 +212,7 @@ fn hail_stone_has_not_reached_path_intersection(hail_stone: &HailStone,
                 is_valid = true;
             }
             else {
-                println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
+                // println!("INVALID, hailstone position: {:?}, intersection point: {:?}", hail_stone.position, intersection_point);
                 is_valid = false;
             }
         }
@@ -237,7 +224,7 @@ fn count_hailstone_path_crossings_within_area(hail_stones: &Vec<HailStone>, test
     let mut count = 0;
     for hail_stone_pair in hail_stones.iter().combinations(2) {
         let intersection_point = calculate_hailstones_intersection_point(hail_stone_pair[0], hail_stone_pair[1]);
-        println!("Comparing hailstones: \n    {:?}\n    {:?}\n", hail_stone_pair[0], hail_stone_pair[1]);
+        // println!("Comparing hailstones: \n    {:?}\n    {:?}\n", hail_stone_pair[0], hail_stone_pair[1]);
         match intersection_point {
             Some(position) => {
                 // println!("Got intersection point {:?}\n", &position);
@@ -267,7 +254,7 @@ fn part_one(input: &str) -> i32 {
         }
     }
 
-    println!("Retrieved {} hailstones", hailstones.len());
+    // println!("Retrieved {} hailstones", hailstones.len());
 
     // let test_area = Area::new(7.0, 7.0, 27.0, 27.0);
     let test_area = Area::new(200000000000000.0, 200000000000000.0, 400000000000000.0, 400000000000000.0);
@@ -279,10 +266,16 @@ fn part_two(input: &str) -> i32 {
     0
 }
 
-fn main() {
+fn main()  -> Result<(), Box<dyn std::error::Error>>  {
     // let input = utils::read_input_from_path("example_input/day24_2023.txt");
     let input = utils::read_input_from_path("input/day24_2023.txt");
 
+    let now = SystemTime::now();
     println!("Part One: {}", part_one(&input));
+    println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
+             now.elapsed()?.as_secs(),
+             now.elapsed()?.as_millis(),
+             now.elapsed()?.as_micros());
     println!("Part Two: {}", part_two(&input));
+    Ok(())
 }

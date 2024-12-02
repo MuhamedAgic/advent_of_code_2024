@@ -7,7 +7,7 @@ fn part_one(input: &String) -> i32 {
     for line in input.lines() {
         let (direction, distance) = line.split(' ').collect_tuple().unwrap();
         let distance = distance.parse::<i32>().unwrap();
-        let _ = match direction {
+        match direction {
             "forward" => horizontal_distance += distance,
             "up" => depth -= distance,
             "down" => depth += distance,

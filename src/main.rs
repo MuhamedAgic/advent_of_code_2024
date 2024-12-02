@@ -1,15 +1,15 @@
-use std::time::Instant;
+use std::time::{Instant, SystemTime};
 
 macro_rules! run_day {
     ($day:expr) => {{
         print!("Day {:02}: \n", $day);
-        let start = Instant::now();
         let exe_name = format!("day{:02}.exe", $day);
         let exe_path = std::env::current_exe()
             .unwrap()
             .parent()
             .unwrap()
             .join(&exe_name);
+        let start = Instant::now();
         let result = std::process::Command::new(exe_path)
             .output()
             .expect(&format!("Failed to execute {}", exe_name));

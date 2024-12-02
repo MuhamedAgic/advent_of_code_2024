@@ -19,9 +19,11 @@ pub mod utils {
     // collect numbers works with any numeric type that implements FromStr
     pub fn collect_numbers<T>(line: &str, separator: char) -> Vec<T>
     where T: FromStr, <T as FromStr>::Err: Debug {
-        let numbers = line.split(separator)
+        let numbers = line
+            .trim()
+            .split(separator)
             .map(str::trim)
-            .map(|x| x.parse::<T>().unwrap())
+            .filter_map(|x| x.parse::<T>().ok())
             .collect::<Vec<T>>();
         numbers
     }
