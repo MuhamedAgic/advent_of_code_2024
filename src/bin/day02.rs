@@ -79,29 +79,7 @@ fn part_one(input: &str) -> i32 {
             .map(|num| num.parse::<i32>().unwrap())
             .collect();
 
-        if !numbers.iter().duplicates().collect_vec().is_empty() {
-            // no duplicates allowed, only strictly ascending or descending
-            continue;
-        }
-
-        let mut ordering = Ordering::Equal;
-        if is_sorted_ascending(&numbers).expect("oh no") {
-            ordering = Ordering::Greater;
-        }
-        else if is_sorted_descending(&numbers).expect("oh no") {
-            ordering = Ordering::Less;
-        }
-        else {
-            continue;
-        }
-
-        match ordering {
-            Ordering::Greater => is_valid_row = is_safe(&numbers),
-            Ordering::Less => is_valid_row = is_safe(&numbers),
-            Ordering::Equal => println!("how?")
-        }
-
-        if is_valid_row {
+        if is_valid(&numbers) {
             safe_count += 1;
             println!("Safe row: {:?}", numbers);
         }
