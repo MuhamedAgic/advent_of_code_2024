@@ -10,6 +10,7 @@ itertools = "0.13.0"
 num-bigint = "0.4.6"
 num = "0.4.3"
 regex = "1.11.1"
+rfd = "0.15.1"
 
 
 [[bin]]
