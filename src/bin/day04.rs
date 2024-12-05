@@ -1,4 +1,10 @@
+use std::hash::Hash;
+use std::sync::{Arc, Mutex};
+use std::thread;
 use std::time::SystemTime;
+use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator};
+use rayon::iter::ParallelIterator;
+use rayon::iter::IndexedParallelIterator;
 use advent_of_code_2024::utils;
 use rfd::FileDialog;
 
@@ -143,14 +149,34 @@ fn get_targets_at(row: usize,
     // apply every search function on location (row, col)
     search_functions
         .iter()
-        .map(|function| function(row, col, &grid, &target))   // execute search function
-        .filter(|search_result| *search_result)                    // keep only instances where search function has found
-        .count() as i32                                                   // count how many functions have found something
+        .map(|function| function(row, col, &grid, &target))  // execute search function
+        .filter(|search_result| *search_result)                  // keep only instances where search function has found
+        .count() as i32                                                 // count how many functions have found something
+
 }
 
 fn part_one(input: &str) -> i32 {
     let search_functions = vec![check_target_north, check_target_south, check_target_east, check_target_west,
                                                check_target_north_east, check_target_north_west, check_target_south_east, check_target_south_west];
+    let grid: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+    let mut found_xmases = 0;
+    let arc_found_xmases = Arc::new(Mutex::new(found_xmases));
+    (0..grid.len()).into_par_iter().for_each(|i| { // PARALLEL POWERRR
+        let captured_found_xmases = Arc::clone(&arc_found_xmases);
+        let mut row_res = 0;
+        for (j, char) in grid[i].iter().enumerate() {
+            let found = get_targets_at(i, j, &grid, "XMAS", &search_functions);
+            row_res += found;
+        };
+        *captured_found_xmases.lock().unwrap() += row_res;
+    });
+
+    found_xmases
+}
+
+fn part_one_not_par(input: &str) -> i32 {
+    let search_functions = vec![check_target_north, check_target_south, check_target_east, check_target_west,
+                                check_target_north_east, check_target_north_west, check_target_south_east, check_target_south_west];
     let grid: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
     let mut found_xmases = 0;
     for (i, row) in grid.iter().enumerate() {
@@ -172,7 +198,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let example_input = utils::read_input_from_path("C:\\Documenten\\magic-repo\\advent_of_code_2024\\example_input\\day04.txt");
 
     let now = SystemTime::now();
-    println!("Part One: {}", part_one(&input));
+    for i in 0..1000 {
+        part_one(&input);
+    }
+    println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
+             now.elapsed()?.as_secs(),
+             now.elapsed()?.as_millis(),
+             now.elapsed()?.as_micros());
+
+    let now = SystemTime::now();
+    for i in 0..1000 {
+        part_one_not_par(&input); // ~3x faster
+    }
     println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
              now.elapsed()?.as_secs(),
              now.elapsed()?.as_millis(),
