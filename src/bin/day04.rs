@@ -174,9 +174,26 @@ fn part_one(input: &str) -> i32 {
     found_xmases
 }
 
-fn part_one_not_par(input: &str) -> i32 {
+fn part_one_more_overhead(input: &str) -> i32 {
     let search_functions = vec![check_target_north, check_target_south, check_target_east, check_target_west,
                                 check_target_north_east, check_target_north_west, check_target_south_east, check_target_south_west];
+    let grid: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+    let mut found_xmases = 0;
+    let arc_found_xmases = Arc::new(Mutex::new(found_xmases));
+    (0..grid.len()).into_par_iter().for_each(|i| { // PARALLEL POWERRR
+        let captured_found_xmases = Arc::clone(&arc_found_xmases);
+        for (j, char) in grid[i].iter().enumerate() {
+            let found = get_targets_at(i, j, &grid, "XMAS", &search_functions);
+            *captured_found_xmases.lock().unwrap() += found;
+        };
+    });
+
+    found_xmases
+}
+
+fn part_one_not_par(input: &str) -> i32 {
+    let search_functions = vec![check_target_north, check_target_south, check_target_east, check_target_west,
+                                               check_target_north_east, check_target_north_west, check_target_south_east, check_target_south_west];
     let grid: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
     let mut found_xmases = 0;
     for (i, row) in grid.iter().enumerate() {
@@ -188,8 +205,49 @@ fn part_one_not_par(input: &str) -> i32 {
     found_xmases
 }
 
+fn can_make_x_mas(row: usize, col: usize, grid: &Vec<Vec<char>>) -> bool {
+    return ((grid[row-1][col-1] == 'M' && grid[row+1][col-1] == 'M')
+    && (grid[row-1][col+1] == 'S' && grid[row+1][col+1] == 'S')) // m's on the left, s's on the right
+    ||
+    ((grid[row-1][col-1] == 'M' && grid[row-1][col+1] == 'M')
+    && (grid[row+1][col-1] == 'S' && grid[row+1][col+1] == 'S')) // m's on top, s's on the bottom
+    ||
+    ((grid[row-1][col+1] == 'M' && grid[row+1][col+1] == 'M')
+    && (grid[row-1][col-1] == 'S' && grid[row+1][col-1] == 'S')) // m's on the right, s's on the left
+    ||
+    ((grid[row+1][col-1] == 'M' && grid[row+1][col+1] == 'M')
+    && (grid[row-1][col-1] == 'S' && grid[row-1][col+1] == 'S')) // m's on the bottom, s's on top
+}
+
+fn mas_crosses(row: usize, col: usize, grid: &Vec<Vec<char>>) -> bool {
+    if grid[row][col] != 'A' {
+        return false;
+    }
+
+    if (row == 0 || col == 0) || (row == grid.len() - 1 || col == grid[0].len() - 1) {
+        return false;
+    }
+
+    if can_make_x_mas(row, col, &grid)
+    {
+        return true;
+    }
+    return false;
+}
+
 fn part_two(input: &str) -> i32 {
-    todo!()
+    let search_functions = vec![check_target_north, check_target_south, check_target_east, check_target_west,
+                                check_target_north_east, check_target_north_west, check_target_south_east, check_target_south_west];
+    let grid: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+    let mut found_x_mases = 0;
+    for (i, row) in grid.iter().enumerate() {
+        for (j, char) in row.iter().enumerate() {
+            if mas_crosses(i, j, &grid) {
+                found_x_mases += 1;
+            }
+        }
+    }
+    found_x_mases
 }
 
 
@@ -198,25 +256,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let example_input = utils::read_input_from_path("C:\\Documenten\\magic-repo\\advent_of_code_2024\\example_input\\day04.txt");
 
     let now = SystemTime::now();
-    for i in 0..1000 {
-        part_one(&input);
-    }
+    part_one(&input);
     println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
              now.elapsed()?.as_secs(),
              now.elapsed()?.as_millis(),
              now.elapsed()?.as_micros());
 
     let now = SystemTime::now();
-    for i in 0..1000 {
-        part_one_not_par(&input); // ~3x faster
-    }
+    part_one_not_par(&input); // ~3x faster
     println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
              now.elapsed()?.as_secs(),
              now.elapsed()?.as_millis(),
              now.elapsed()?.as_micros());
 
     let now = SystemTime::now();
-    // println!("Part two: {}", part_two(&example_input));
+    println!("Part two: {}", part_two(&input));
     println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
              now.elapsed()?.as_secs(),
              now.elapsed()?.as_millis(),
