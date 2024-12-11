@@ -7,7 +7,8 @@ enum Operators {
     Add,
     Sub,
     Mul,
-    Div
+    Div,
+    Concat
 }
 
 fn calculate(first: i128, second: i128, operator: &Operators) -> Option<i128> {
@@ -22,6 +23,9 @@ fn calculate(first: i128, second: i128, operator: &Operators) -> Option<i128> {
             else {
                 None
             }
+        },
+        Operators::Concat => {
+            Some(first * 10u64.pow(second.ilog10() + 1) as i128 + second)
         }
     }
 }
@@ -51,8 +55,7 @@ fn is_solvable(equation_numbers: &Vec<i128>, desired_equation_result: i128, avai
 }
 
 
-fn part_one(input: &str) -> i128 {
-    let available_operations: Vec<Operators> = vec![Operators::Mul, Operators::Add];
+fn part_one_and_two(input: &str, available_operations: &Vec<Operators>) -> i128 {
     let mut answer = 0;
     for line in input.lines() {
         let mut equation = line.split(':');
@@ -71,24 +74,23 @@ fn part_one(input: &str) -> i128 {
     answer
 }
 
-fn part_two(input: &str) -> i128 {
-    todo!()
-}
-
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = utils::read_input(7);
     let example_input = utils::read_input_from_path("C:\\Documenten\\magic-repo\\advent_of_code_2024\\example_input\\day07.txt");
 
+    let available_operations_part_one: Vec<Operators> = vec![Operators::Mul, Operators::Add];
+    let available_operations_part_two: Vec<Operators> = vec![Operators::Mul, Operators::Add, Operators::Concat];
+
     let now = SystemTime::now();
-    println!("Part One: {}", part_one(&input));
+    println!("Part One: {}", part_one_and_two(&input, &available_operations_part_one));
     println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
              now.elapsed()?.as_secs(),
              now.elapsed()?.as_millis(),
              now.elapsed()?.as_micros());
 
     let now = SystemTime::now();
-    // println!("Part One V2: {}", part_two(&input));
+    println!("Part Two: {}", part_one_and_two(&input, &available_operations_part_two));
     println!("Elapsed time as:\n    Seconds: {} \n    Milliseconds: {}\n    Microseconds: {}\n",
              now.elapsed()?.as_secs(),
              now.elapsed()?.as_millis(),
