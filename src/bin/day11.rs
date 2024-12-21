@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::ops::Deref;
 use std::time::SystemTime;
 use regex::Regex;
@@ -27,25 +28,39 @@ fn apply_rules(stone: &str) -> String {
     }
 }
 
-fn blink(line: &str) -> String {
+fn blink(line: &str, n_times: i32) -> i64 {
     let stones: Vec<&str> = line.split_whitespace().collect();
-    let mut str_after_applied_rules = String::from("");
-    for number in stones {
-        let stone_outcome = apply_rules(number) + " ";
-        str_after_applied_rules.push_str(&stone_outcome);
+    let mut stone_counts: HashMap<String, i64> = HashMap::new();
+
+    // keep track of counts in hashmap
+    for &stone in &stones {
+        *stone_counts.entry(stone.to_string().clone()).or_insert(0) += 1;
     }
-    // println!("{}", str_after_applied_rules);
-    return str_after_applied_rules;
+
+    for _ in 0..n_times {
+        let mut new_counts = HashMap::new();
+        for (stone, &count) in &stone_counts {
+            let outcome = apply_rules(stone);
+            if outcome.contains(' ') {
+                let mut parts = outcome.split_whitespace();
+                let first = parts.next().unwrap().to_string();
+                let second = parts.next().unwrap().to_string();
+                *new_counts.entry(first).or_default() += count;
+                *new_counts.entry(second).or_default() += count;
+            }
+            else {
+                *new_counts.entry(outcome).or_default() += count;
+            }
+        }
+        stone_counts = new_counts;
+    }
+    stone_counts.values().sum()
 }
 
-fn part_one_and_two(input: &str, blink_count: i32) -> i32 {
-    let mut stone_line = String::from(input);
-    for i in 0..blink_count {
-        stone_line = blink(&stone_line);
-    }
-    return stone_line.split_whitespace().count() as i32;
+fn part_one_and_two(input: &str, blink_count: i32) -> i64 {
+    let stone_line = String::from(input);
+    blink(&stone_line, blink_count)
 }
-
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = utils::read_input(11);
